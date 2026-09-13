@@ -1,0 +1,41 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  CLIENT
+  BARBER
+}
+
+model User {
+  id           Int           @id @default(autoincrement())
+  name         String
+  email        String        @unique
+  passwordHash String        @map("password_hash")
+  role         UserRole      @default(CLIENT)
+  appointments Appointment[]
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+model Appointment {
+  id        Int      @id @default(autoincrement())
+  clientId  Int      @map("client_id")
+  date      DateTime
+  service   String   @default("Corte")
+  status    String   @default("CONFIRMED")
+  createdAt DateTime @default(now()) @map("created_at")
+  client    User     @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@index([date])
+  @@index([clientId])
+  @@unique([date])
+  @@map("appointments")
+}

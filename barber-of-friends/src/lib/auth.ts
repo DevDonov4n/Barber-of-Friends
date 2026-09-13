@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 const secret = new TextEncoder().encode(process.env.AUTH_SECRET || "development-secret-change-me");
 const COOKIE = "barber_session";
 
-export type Session = { id: number; name: string; email: string; role: "CLIENT" | "BARBER" };
+export type Session = { id: number; name: string; email: string; role: "CLIENT" | "BARBER" | "ADMIN" };
 
 export async function createSession(session: Session) {
   const token = await new SignJWT(session)
@@ -22,7 +22,9 @@ export async function getSession(): Promise<Session | null> {
   try {
     const { payload } = await jwtVerify(token, secret);
     if (!payload.id || !payload.role || !payload.email || !payload.name) return null;
-    return { id: Number(payload.id), name: String(payload.name), email: String(payload.email), role: String(payload.role) as Session["role"] };
+    const role = String(payload.role);
+    if (!["CLIENT", "BARBER", "ADMIN"].includes(role)) return null;
+    return { id: Number(payload.id), name: String(payload.name), email: String(payload.email), role: role as Session["role"] };
   } catch { return null; }
 }
 

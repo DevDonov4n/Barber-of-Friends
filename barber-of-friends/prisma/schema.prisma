@@ -10,40 +10,100 @@ datasource db {
 enum UserRole {
   CLIENT
   BARBER
+  ADMIN
+}
+
+enum AppointmentStatus {
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+  NO_SHOW
 }
 
 model User {
-  id           Int           @id @default(autoincrement())
-  name         String
-  email        String        @unique
-  passwordHash String        @map("password_hash")
-  role         UserRole      @default(CLIENT)
-  phone        String?
-  appointments Appointment[]
-  createdAt    DateTime      @default(now()) @map("created_at")
-  updatedAt    DateTime      @updatedAt @map("updated_at")
+  id                 Int              @id @default(autoincrement()) @db.UnsignedInt
+  name               String           @db.VarChar(120)
+  email              String           @unique @db.VarChar(180)
+  passwordHash       String           @map("password_hash") @db.VarChar(255)
+  phone              String?          @db.VarChar(20)
+  role               UserRole         @default(CLIENT)
+  totalCompletedCuts Int              @default(0) @map("total_completed_cuts") @db.UnsignedInt
+  appointments       Appointment[]    @relation("ClientAppointments")
+  barberAppointments Appointment[]    @relation("BarberAppointments")
+  loyaltyHistory    LoyaltyHistory[]
+  createdAt          DateTime         @default(now()) @map("created_at")
+  updatedAt          DateTime         @updatedAt @map("updated_at")
 
+  @@index([role], map: "idx_users_role")
+  @@index([phone], map: "idx_users_phone")
   @@map("users")
 }
 
-model Appointment {
-  id               Int       @id @default(autoincrement())
-  clientId         Int?      @map("client_id")
-  guestName        String?   @map("guest_name")
-  guestPhone       String?   @map("guest_phone")
-  guestEmail       String?   @map("guest_email")
-  date             DateTime
-  service          String    @default("Corte normal")
-  originalPrice    Decimal   @default(45.00) @map("original_price") @db.Decimal(10, 2)
-  price            Decimal   @default(45.00) @db.Decimal(10, 2)
-  discountPercent  Int       @default(0) @map("discount_percent")
-  status           String    @default("CONFIRMED")
-  createdAt        DateTime  @default(now()) @map("created_at")
-  client           User?     @relation(fields: [clientId], references: [id], onDelete: Cascade)
+model Service {
+  id               Int           @id @default(autoincrement()) @db.UnsignedInt
+  name             String        @unique @db.VarChar(100)
+  description      String?       @db.VarChar(500)
+  price            Decimal       @db.Decimal(10, 2)
+  durationMinutes  Int           @default(30) @map("duration_minutes") @db.UnsignedSmallInt
+  active           Boolean       @default(true)
+  appointments     Appointment[]
+  createdAt        DateTime      @default(now()) @map("created_at")
+  updatedAt        DateTime      @updatedAt @map("updated_at")
 
-  @@index([date])
-  @@index([clientId])
-  @@index([guestPhone])
-  @@unique([date])
+  @@map("services")
+}
+
+model Appointment {
+  id               Int               @id @default(autoincrement()) @db.UnsignedInt
+  clientId         Int?              @map("client_id") @db.UnsignedInt
+  serviceId        Int               @map("service_id") @db.UnsignedInt
+  barberId         Int?              @map("barber_id") @db.UnsignedInt
+  guestName        String?           @map("guest_name") @db.VarChar(120)
+  guestPhone       String?           @map("guest_phone") @db.VarChar(20)
+  guestEmail       String?           @map("guest_email") @db.VarChar(180)
+  appointmentDate  DateTime          @map("appointment_date") @db.Date
+  startTime        DateTime          @map("start_time") @db.Time(0)
+  endTime          DateTime          @map("end_time") @db.Time(0)
+  originalPrice    Decimal           @map("original_price") @db.Decimal(10, 2)
+  discountPercent  Decimal           @default(0) @map("discount_percent") @db.Decimal(5, 2)
+  finalPrice       Decimal           @map("final_price") @db.Decimal(10, 2)
+  status           AppointmentStatus @default(CONFIRMED)
+  notes            String?           @db.VarChar(500)
+  createdAt        DateTime          @default(now()) @map("created_at")
+  updatedAt        DateTime          @updatedAt @map("updated_at")
+  client           User?             @relation("ClientAppointments", fields: [clientId], references: [id], onDelete: SetNull)
+  service          Service           @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+  barber           User?             @relation("BarberAppointments", fields: [barberId], references: [id], onDelete: SetNull)
+  loyaltyHistory   LoyaltyHistory[]
+
+  @@index([appointmentDate], map: "idx_appointments_date")
+  @@index([clientId], map: "idx_appointments_client")
+  @@index([barberId], map: "idx_appointments_barber")
+  @@index([status], map: "idx_appointments_status")
+  @@unique([appointmentDate, startTime], map: "uq_appointment_slot")
   @@map("appointments")
+}
+
+model LoyaltyHistory {
+  id               Int         @id @default(autoincrement()) @db.UnsignedInt
+  clientId         Int         @map("client_id") @db.UnsignedInt
+  appointmentId    Int         @map("appointment_id") @db.UnsignedInt
+  cutsCount        Int         @map("cuts_count") @db.UnsignedInt
+  discountGenerated Boolean    @default(false) @map("discount_generated")
+  createdAt        DateTime    @default(now()) @map("created_at")
+  client           User        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  appointment      Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+
+  @@index([clientId], map: "idx_loyalty_client")
+  @@map("loyalty_history")
+}
+
+model BusinessHours {
+  id        Int      @id @default(autoincrement()) @db.UnsignedInt
+  weekday   Int      @unique @db.UnsignedTinyInt
+  openTime  DateTime? @map("open_time") @db.Time(0)
+  closeTime DateTime? @map("close_time") @db.Time(0)
+  active    Boolean  @default(true)
+
+  @@map("business_hours")
 }

@@ -2,15 +2,10 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 
-const SERVICES = {
-  "Corte normal": 45,
-  "Corte premium": 80,
-} as const;
-
 export async function GET() {
   const appointments = await prisma.appointment.findMany({
-    orderBy: { date: "asc" },
-    select: { id: true, date: true, service: true, status: true },
+    orderBy: [{ appointmentDate: "asc" }, { startTime: "asc" }],
+    select: { id: true, appointmentDate: true, startTime: true, status: true },
   });
   return NextResponse.json(appointments);
 }
@@ -19,54 +14,43 @@ export async function POST(request: Request) {
   try {
     const session = await getSession();
     const body = await request.json();
-    const { date, service, guestName, guestPhone, guestEmail } = body;
-    const appointmentDate = new Date(date);
+    const { date, service, guestName } = body;
+    const selectedDate = new Date(date);
 
-    if (Number.isNaN(appointmentDate.getTime()) || appointmentDate.getMinutes() % 30 !== 0) {
+    if (Number.isNaN(selectedDate.getTime()) || selectedDate.getMinutes() % 30 !== 0) {
       return NextResponse.json({ error: "Escolha um horário válido de 30 em 30 minutos." }, { status: 400 });
     }
+    if (selectedDate <= new Date()) return NextResponse.json({ error: "Escolha um horário futuro." }, { status: 400 });
+    if (selectedDate.getDay() === 0) return NextResponse.json({ error: "Aos domingos não realizamos agendamentos." }, { status: 400 });
+    if (!service || !["Corte normal", "Corte premium"].includes(service)) return NextResponse.json({ error: "Escolha um serviço válido." }, { status: 400 });
+    if (!session && !guestName?.trim()) return NextResponse.json({ error: "Informe seu nome para confirmar o agendamento." }, { status: 400 });
 
-    if (appointmentDate <= new Date()) {
-      return NextResponse.json({ error: "Escolha um horário futuro." }, { status: 400 });
-    }
+    const serviceRecord = await prisma.service.findUnique({ where: { name: service } });
+    if (!serviceRecord || !serviceRecord.active) return NextResponse.json({ error: "Este serviço não está disponível." }, { status: 400 });
 
-    if (appointmentDate.getDay() === 0) {
-      return NextResponse.json({ error: "Aos domingos não realizamos agendamentos." }, { status: 400 });
-    }
+    const appointmentDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate());
+    const startTime = new Date(1970, 0, 1, selectedDate.getHours(), selectedDate.getMinutes(), 0, 0);
+    const endTime = new Date(startTime.getTime() + serviceRecord.durationMinutes * 60_000);
 
-    const selectedService = service as keyof typeof SERVICES;
-    if (!selectedService || !(selectedService in SERVICES)) {
-      return NextResponse.json({ error: "Escolha um serviço válido." }, { status: 400 });
-    }
-
-    if (!session && (!guestName?.trim() || !guestPhone?.trim())) {
-      return NextResponse.json({ error: "Informe seu nome e telefone para confirmar o agendamento." }, { status: 400 });
-    }
-
-    const originalPrice = SERVICES[selectedService];
-    let discountPercent = 0;
-
-    if (selectedService === "Corte premium" && session) {
-      const completedCuts = await prisma.appointment.count({
-        where: { clientId: session.id, status: "COMPLETED" },
-      });
-      if (completedCuts >= 5) discountPercent = 50;
-    }
-
-    const price = originalPrice * (1 - discountPercent / 100);
+    const completedCuts = session
+      ? await prisma.appointment.count({ where: { clientId: session.id, status: "COMPLETED" } })
+      : 0;
+    const discountPercent = service === "Corte premium" && completedCuts >= 5 ? 50 : 0;
+    const finalPrice = Number(serviceRecord.price) * (1 - discountPercent / 100);
 
     const appointment = await prisma.appointment.create({
       data: {
         clientId: session?.id,
+        serviceId: serviceRecord.id,
         guestName: session ? null : guestName.trim(),
-        guestPhone: session ? null : guestPhone.trim(),
-        guestEmail: session ? null : guestEmail?.trim() || null,
-        date: appointmentDate,
-        service: selectedService,
-        originalPrice,
-        price,
+        appointmentDate,
+        startTime,
+        endTime,
+        originalPrice: serviceRecord.price,
         discountPercent,
+        finalPrice,
       },
+      select: { id: true, appointmentDate: true, startTime: true, finalPrice: true, discountPercent: true },
     });
 
     return NextResponse.json(appointment, { status: 201 });

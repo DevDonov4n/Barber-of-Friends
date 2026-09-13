@@ -18,6 +18,7 @@ model User {
   email        String        @unique
   passwordHash String        @map("password_hash")
   role         UserRole      @default(CLIENT)
+  phone        String?
   appointments Appointment[]
   createdAt    DateTime      @default(now()) @map("created_at")
   updatedAt    DateTime      @updatedAt @map("updated_at")
@@ -26,16 +27,23 @@ model User {
 }
 
 model Appointment {
-  id        Int      @id @default(autoincrement())
-  clientId  Int      @map("client_id")
-  date      DateTime
-  service   String   @default("Corte")
-  status    String   @default("CONFIRMED")
-  createdAt DateTime @default(now()) @map("created_at")
-  client    User     @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  id               Int       @id @default(autoincrement())
+  clientId         Int?      @map("client_id")
+  guestName        String?   @map("guest_name")
+  guestPhone       String?   @map("guest_phone")
+  guestEmail       String?   @map("guest_email")
+  date             DateTime
+  service          String    @default("Corte normal")
+  originalPrice    Decimal   @default(45.00) @map("original_price") @db.Decimal(10, 2)
+  price            Decimal   @default(45.00) @db.Decimal(10, 2)
+  discountPercent  Int       @default(0) @map("discount_percent")
+  status           String    @default("CONFIRMED")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  client           User?     @relation(fields: [clientId], references: [id], onDelete: Cascade)
 
   @@index([date])
   @@index([clientId])
+  @@index([guestPhone])
   @@unique([date])
   @@map("appointments")
 }

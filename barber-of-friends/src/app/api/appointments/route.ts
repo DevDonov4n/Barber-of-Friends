@@ -95,6 +95,8 @@ export async function POST(request: Request) {
     const originalPrice = Number(serviceRecord.price);
     const finalPrice = originalPrice * (1 - discountPercent / 100);
 
+    // As colunas date/price/service ainda existem no banco durante a migração.
+    // Preenchê-las evita erro de NOT NULL enquanto elas não forem removidas.
     await prisma.$executeRaw`
       INSERT INTO appointments (
         client_id,
@@ -107,7 +109,10 @@ export async function POST(request: Request) {
         original_price,
         discount_percent,
         final_price,
-        status
+        status,
+        date,
+        price,
+        service
       ) VALUES (
         ${session?.id ?? null},
         ${serviceRecord.id},
@@ -119,7 +124,10 @@ export async function POST(request: Request) {
         ${originalPrice},
         ${discountPercent},
         ${finalPrice},
-        'CONFIRMED'
+        'CONFIRMED',
+        ${selectedDate},
+        ${originalPrice},
+        ${service}
       )
     `;
 

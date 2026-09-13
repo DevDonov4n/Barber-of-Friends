@@ -1,16 +1,5 @@
-export default function BarberDashboardPage() {
-  return (
-    <main className="site-shell">
-      <section className="page">
-        <span className="eyebrow">Área administrativa</span>
-        <h1 className="page-title">Painel do barbeiro</h1>
-        <p className="page-subtitle">Base preparada para agenda, clientes, cancelamentos e visão dos atendimentos.</p>
-        <div className="feature-grid" style={{ width: "100%", padding: 0, margin: 0 }}>
-          <article className="feature glass"><span className="number">AGENDA</span><h2>Agendamentos</h2><p>Visualização diária e semanal dos horários.</p></article>
-          <article className="feature glass"><span className="number">CLIENTES</span><h2>Clientes</h2><p>Cadastro, contato e corte favorito.</p></article>
-          <article className="feature glass"><span className="number">GESTÃO</span><h2>Controle</h2><p>Confirmação e cancelamento dos atendimentos.</p></article>
-        </div>
-      </section>
-    </main>
-  );
-}
+import { redirect } from "next/navigation";
+import { getSession } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+
+export default async function BarberDashboardPage() { const session = await getSession(); if (!session || session.role !== "BARBER") redirect("/login?next=/painel"); const appointments = await prisma.appointment.findMany({ where: { date: { gte: new Date() } }, orderBy: { date: "asc" }, take: 20, include: { client: { select: { name: true, email: true } } } }); return <main className="site-shell"><section className="page dashboard"><div className="dashboard-head"><div><span className="eyebrow">PAINEL DO BARBEIRO</span><h1 className="page-title">Olá, {session.name}.</h1><p className="page-subtitle">Sua agenda em um só lugar.</p></div><form action="/api/auth/logout" method="post"><button className="btn btn-secondary">Sair</button></form></div><div className="stats-grid"><article className="stat glass"><span>Próximos</span><strong>{appointments.length}</strong></article><article className="stat glass"><span>Hoje</span><strong>{appointments.filter(a => a.date.toDateString() === new Date().toDateString()).length}</strong></article><article className="stat glass"><span>Status</span><strong>Online</strong></article></div><section className="panel glass"><h2>Agenda</h2><div className="appointment-list">{appointments.length === 0 ? <p className="page-subtitle">Nenhum agendamento futuro.</p> : appointments.map(a => <div className="appointment" key={a.id}><div><strong>{a.client.name}</strong><span>{a.client.email}</span></div><time>{new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short" }).format(a.date)}</time></div>)}</div></section></section></main>; }

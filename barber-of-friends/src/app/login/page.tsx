@@ -11,18 +11,16 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
 
   async function submit(e: FormEvent) {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
+    e.preventDefault(); setError(""); setLoading(true);
     try {
       const r = await fetch("/api/auth/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, password }) });
       const data = await r.json();
       if (!r.ok) { setError(data.error || "Não foi possível entrar."); return; }
-      router.push(data.user.role === "BARBER" ? "/painel/barbeiro" : "/agendar");
+      router.push(data.user.role === "BARBER" || data.user.role === "ADMIN" ? "/painel/barbeiro" : "/agendar");
       router.refresh();
     } catch { setError("Não foi possível conectar ao servidor."); }
     finally { setLoading(false); }
   }
 
-  return <main className="site-shell auth-shell"><div className="auth-glow auth-glow-red"/><div className="auth-glow auth-glow-blue"/><section className="auth-page"><div className="auth-card glass"><a className="back-link" href="/">← Voltar para o início</a><span className="eyebrow">BARBER OF FRIENDS • ACESSO</span><h1>Entre na sua conta.</h1><p>Clientes acompanham seus horários. Barbeiros acessam o painel da agenda.</p><div className="access-hint"><span>✦</span><div><strong>Quer só agendar?</strong><small>Não precisa criar conta. Agende diretamente e pronto.</small></div></div><form onSubmit={submit}><label>E-mail<input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="voce@email.com" autoComplete="email" required /></label><label>Senha<input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" autoComplete="current-password" required /></label>{error && <p className="error">{error}</p>}<button className="btn btn-primary auth-submit" type="submit" disabled={loading}>{loading ? "Entrando..." : "Entrar"}</button></form><div className="auth-divider"><span>ou</span></div><a className="btn btn-secondary auth-register" href="/cadastro">Criar conta de cliente</a><p className="admin-hint">Acesso administrativo: use uma conta com função <strong>BARBER</strong>.</p></div></section></main>;
+  return <main className="site-shell auth-shell"><div className="auth-glow auth-glow-red"/><div className="auth-glow auth-glow-blue"/><section className="auth-page"><div className="auth-card glass"><a className="back-link" href="/">← Voltar para o início</a><span className="eyebrow">BARBER OF FRIENDS • ACESSO</span><h1>Entre na sua conta.</h1><p>Clientes acompanham seus horários. A administração acessa o painel completo da agenda.</p><div className="access-hint"><span>✦</span><div><strong>Quer só agendar?</strong><small>Não precisa criar conta. Agende diretamente informando seu nome.</small></div></div><form onSubmit={submit}><label>E-mail<input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="voce@email.com" autoComplete="email" required /></label><label>Senha<input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" autoComplete="current-password" required /></label>{error && <p className="error">{error}</p>}<button className="btn btn-primary auth-submit" type="submit" disabled={loading}>{loading ? "Entrando..." : "Entrar"}</button></form><div className="auth-divider"><span>ou</span></div><a className="btn btn-secondary auth-register" href="/cadastro">Criar conta de cliente</a><p className="admin-hint">Acesso administrativo: use <strong>admin@barberoffriends.com</strong> com a senha definida no banco.</p></div></section></main>;
 }

@@ -7,12 +7,14 @@ export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
   if (!path.startsWith("/painel")) return NextResponse.next();
   const token = request.cookies.get("barber_session")?.value;
-  if (!token) return NextResponse.redirect(new URL("/login?next=/painel", request.url));
+  if (!token) return NextResponse.redirect(new URL("/login?next=/painel/barbeiro", request.url));
   try {
     const { payload } = await jwtVerify(token, secret);
-    if (payload.role !== "BARBER") return NextResponse.redirect(new URL("/agendar", request.url));
+    if (payload.role !== "BARBER" && payload.role !== "ADMIN") return NextResponse.redirect(new URL("/agendar", request.url));
     return NextResponse.next();
-  } catch { return NextResponse.redirect(new URL("/login?next=/painel", request.url)); }
+  } catch {
+    return NextResponse.redirect(new URL("/login?next=/painel/barbeiro", request.url));
+  }
 }
 
 export const config = { matcher: ["/painel/:path*"] };

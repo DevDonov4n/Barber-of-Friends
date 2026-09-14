@@ -1,69 +1,8 @@
-import Image from "next/image";
+import { getSession } from "@/lib/auth";
 
-export default function Home() {
-  return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
-  );
+const particles = Array.from({ length: 70 }, (_, index) => ({ left: `${(index * 37) % 100}%`, top: `${(index * 61) % 100}%`, x: `${((index % 7) - 3) * 18}px`, y: `${((index % 5) - 2) * 20}px`, duration: `${4 + (index % 6)}s`, color: index % 2 === 0 ? "#ff304f" : "#2878ff" }));
+
+export default async function Home() {
+ const session=await getSession(); const firstName=session?.name?.trim().split(/\s+/)[0]||""; const accountHref=session?(session.role==="ADMIN"||session.role==="BARBER"?"/painel/barbeiro":"/painel/cliente"):"/login";
+ return <main className="site-shell"><div className="particle-field" aria-hidden="true">{particles.map((p,i)=><span key={i} className="particle" style={{left:p.left,top:p.top,["--x" as string]:p.x,["--y" as string]:p.y,["--duration" as string]:p.duration,["--particle-color" as string]:p.color}}/>)}</div><header className="navbar"><a className="brand" href="#inicio">BARBER<span>OF</span>FRIENDS</a><nav className="nav-links"><a href="#inicio">Início</a><a href="/agendar">Agendamento</a><a href="#precos">Preços</a><a href="#sobre">Sobre</a><a href="#localizacao">Localização</a></nav><a className="btn btn-secondary" href={accountHref}>{session?firstName:"Entrar"}</a></header><section className="hero" id="inicio"><span className="eyebrow">Barbearia • Agendamento inteligente</span><h1>Seu corte.<br/>Seu horário.<br/><span className="gradient-text">Sem complicação.</span></h1><p>Uma experiência rápida para encontrar seu horário, escolher o melhor dia e chegar na cadeira sem perder tempo.</p><div className="actions"><a className="btn btn-primary" href="/agendar">Agendar meu corte</a><a className="btn btn-secondary" href="#precos">Ver preços</a></div></section><section className="price-section page" id="precos"><span className="eyebrow">SERVIÇOS</span><h2 className="page-title">Escolha seu estilo.</h2><div className="price-grid"><article className="price-card glass"><span>CORTE NORMAL</span><strong>R$ 45,00</strong><p>O clássico que nunca sai de moda.</p></article><article className="price-card glass featured"><span>CORTE PREMIUM</span><strong>R$ 80,00</strong><p>Uma experiência completa para quem quer algo a mais.</p></article></div><p className="loyalty-banner">✦ A cada 5 cortes concluídos com o barbeiro, você ganha <strong>50% de desconto no próximo Corte Premium</strong>.</p></section><section className="feature-grid" id="sobre"><article className="feature glass"><span className="number">01</span><h2>Horários de 30 minutos</h2><p>Escolha o dia e veja a disponibilidade em blocos de meia hora.</p></article><article className="feature glass"><span className="number">02</span><h2>Agende sem cadastro</h2><p>Informe somente seu nome e reserve seu horário.</p></article><article className="feature glass"><span className="number">03</span><h2>Conta de cliente</h2><p>Crie sua conta para acompanhar seus horários e seu histórico.</p></article></section><section className="location-section page" id="localizacao"><div className="location-heading"><div><span className="eyebrow">LOCALIZAÇÃO • BARBER OF FRIENDS</span><h2 className="page-title">Sua próxima parada.</h2><p className="page-subtitle">Encontre a barbearia, trace sua rota e venha viver a experiência Barber of Friends.</p></div><div className="location-badge"><span className="location-dot"/> ONLINE • MAPA ATIVO</div></div><div className="location-card glass"><div className="map-frame"><iframe src="https://www.google.com/maps?q=Barbearia%20dos%20amigos&output=embed" width="600" height="450" style={{border:0}} allowFullScreen loading="lazy" referrerPolicy="no-referrer-when-downgrade" title="Mapa da Barbearia dos amigos" /></div><div className="location-info"><span className="eyebrow">DESTINO</span><h3>Barbearia dos amigos</h3><p>Chegue no horário. O seu corte começa antes mesmo de sentar na cadeira.</p><a className="btn btn-primary" href="https://www.google.com/maps/search/?api=1&query=Barbearia%20dos%20amigos" target="_blank" rel="noreferrer">Abrir no Google Maps</a></div></div></section><footer className="page" id="contato" style={{paddingTop:10}}><p style={{color:"var(--muted)",fontSize:".85rem"}}>© 2026 Barber of Friends — todos os direitos reservados.</p></footer></main>;
 }

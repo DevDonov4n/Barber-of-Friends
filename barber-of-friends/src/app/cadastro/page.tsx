@@ -3,6 +3,23 @@
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function CadastroPage() { const router = useRouter(); const [name, setName] = useState(""); const [email, setEmail] = useState(""); const [password, setPassword] = useState(""); const [error, setError] = useState("");
-  async function submit(e: FormEvent) { e.preventDefault(); setError(""); const r = await fetch("/api/auth/register", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name, email, password }) }); const data = await r.json(); if (!r.ok) return setError(data.error); router.push("/agendar"); router.refresh(); }
-  return <main className="site-shell"><section className="auth-page"><div className="auth-card glass"><a className="back-link" href="/">← Início</a><span className="eyebrow">NOVO CLIENTE</span><h1>Crie sua conta.</h1><p>Salve seus dados e agilize seus próximos agendamentos.</p><form onSubmit={submit}><label>Nome<input value={name} onChange={e => setName(e.target.value)} required /></label><label>E-mail<input type="email" value={email} onChange={e => setEmail(e.target.value)} required /></label><label>Senha<input type="password" minLength={6} value={password} onChange={e => setPassword(e.target.value)} required /></label>{error && <p className="error">{error}</p>}<button className="btn btn-primary" type="submit">Criar conta</button></form><a className="register-link" href="/login">Já tenho uma conta</a></div></section></main>; }
+export default function CadastroPage() {
+  const router = useRouter();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [favoriteCut, setFavoriteCut] = useState("Corte normal");
+  const [error, setError] = useState("");
+
+  async function submit(e: FormEvent) {
+    e.preventDefault();
+    setError("");
+    const r = await fetch("/api/auth/register", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name, email, password, favoriteCut }) });
+    const data = await r.json();
+    if (!r.ok) return setError(data.error || "Não foi possível criar a conta.");
+    router.push("/agendar");
+    router.refresh();
+  }
+
+  return <main className="site-shell"><section className="auth-page"><div className="auth-card glass"><a className="back-link" href="/">← Início</a><span className="eyebrow">NOVO CLIENTE</span><h1>Crie sua conta.</h1><p>Salve seus dados e deixe seu próximo agendamento ainda mais rápido.</p><form onSubmit={submit}><label>Nome<input value={name} onChange={e => setName(e.target.value)} required /></label><label>E-mail<input type="email" value={email} onChange={e => setEmail(e.target.value)} required /></label><label>Corte favorito<select value={favoriteCut} onChange={e => setFavoriteCut(e.target.value)} required><option value="Corte normal">Corte normal</option><option value="Corte premium">Corte premium</option></select></label><label>Senha<input type="password" minLength={6} value={password} onChange={e => setPassword(e.target.value)} required /></label>{error && <p className="error">{error}</p>}<button className="btn btn-primary" type="submit">Criar conta</button></form><a className="register-link" href="/login">Já tenho uma conta</a></div></section></main>;
+}

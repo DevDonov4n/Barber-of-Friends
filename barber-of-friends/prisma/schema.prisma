@@ -26,6 +26,7 @@ model User {
   email              String           @unique @db.VarChar(180)
   passwordHash       String           @map("password_hash") @db.VarChar(255)
   phone              String?          @db.VarChar(20)
+  favoriteCut       String?          @map("favorite_cut") @db.VarChar(100)
   role               UserRole         @default(CLIENT)
   totalCompletedCuts Int              @default(0) @map("total_completed_cuts") @db.UnsignedInt
   appointments       Appointment[]    @relation("ClientAppointments")

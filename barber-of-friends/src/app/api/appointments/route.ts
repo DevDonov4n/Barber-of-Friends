@@ -39,8 +39,13 @@ export async function POST(request: Request) {
     const end = new Date(selectedDate.getTime() + duration * 60000);
     const endTime = `${String(end.getHours()).padStart(2, "0")}:${String(end.getMinutes()).padStart(2, "0")}:00`;
     if (end.getHours() * 60 + end.getMinutes() > 1230) return NextResponse.json({ error: "Esse serviço termina após o horário de funcionamento." }, { status: 400 });
-    const completedRows = session ? await prisma.$queryRaw<Array<{ total: number }>>`SELECT COUNT(*) AS total FROM appointments WHERE client_id = ${session.id} AND status = 'COMPLETED'` : [{ total: 0 }];
-    const discountPercent = service === "Corte premium" && Number(completedRows[0]?.total || 0) >= 5 ? 50 : 0;
+    const activeLoyalty = session && service === "Corte premium"
+      ? await prisma.loyaltyHistory.findFirst({
+          where: { clientId: session.id, discountGenerated: false },
+          orderBy: { createdAt: "asc" },
+        })
+      : null;
+    const discountPercent = activeLoyalty ? 50 : 0;
     const originalPrice = Number(serviceRecord.price);
     const finalPrice = originalPrice * (1 - discountPercent / 100);
     await prisma.$executeRaw`
@@ -52,6 +57,9 @@ export async function POST(request: Request) {
       FROM appointments WHERE appointment_date = ${appointmentDate} AND start_time = ${startTime} ORDER BY id DESC LIMIT 1
     `;
     const created = createdRows[0];
+    if (activeLoyalty && created?.id) {
+      await prisma.loyaltyHistory.update({ where: { id: activeLoyalty.id }, data: { appointmentId: Number(created.id) } });
+    }
     return NextResponse.json({ id: created?.id, appointmentDate: created?.appointment_date, startTime: created?.start_time, finalPrice: created?.final_price, discountPercent: created?.discount_percent, clientName: session?.name || cleanGuestName }, { status: 201 });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);

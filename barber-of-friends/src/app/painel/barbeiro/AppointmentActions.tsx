@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { createPortal } from "react-dom";
 
 type Props = { id: number; status: string };
 
@@ -29,6 +30,6 @@ export default function AppointmentActions({ id, status }: Props) {
       <button className="action-cancel" disabled={loading} onClick={() => setCancelOpen(true)}>Cancelar</button>
     </>}
     {error && <small className="action-error">{error}</small>}
-    {cancelOpen && <div className="confirmation-overlay" role="dialog" aria-modal="true"><div className="confirmation-modal glass"><div className="confirmation-icon confirmation-icon-sad">☹</div><span className="eyebrow">CANCELAR ATENDIMENTO</span><h2>Tem certeza?</h2><p>Esse horário será liberado novamente para outros clientes.</p><div className="confirmation-actions"><button className="btn btn-secondary" onClick={() => setCancelOpen(false)}>Voltar</button><button className="btn btn-primary" onClick={() => updateStatus("CANCELLED")} disabled={loading}>{loading ? "Cancelando..." : "Sim, cancelar"}</button></div></div></div>}
+    {cancelOpen && typeof document !== "undefined" && createPortal(<div className="confirmation-overlay" role="dialog" aria-modal="true"><div className="confirmation-modal glass"><div className="confirmation-icon confirmation-icon-sad">☹</div><span className="eyebrow">CANCELAR ATENDIMENTO</span><h2>Tem certeza?</h2><p>Esse horário será liberado novamente para outros clientes.</p><div className="confirmation-actions"><button className="btn btn-secondary" onClick={() => setCancelOpen(false)}>Voltar</button><button className="btn btn-primary" onClick={() => updateStatus("CANCELLED")} disabled={loading}>{loading ? "Cancelando..." : "Sim, cancelar"}</button></div></div></div>, document.body)}
   </div>;
 }

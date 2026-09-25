@@ -834,3 +834,45 @@ body {
   background: rgba(255,255,255,.012);
 }
 .time-slot.past small { color: #727b8b; }
+
+
+/* Modal de fidelidade */
+.loyalty-modal {
+  width: min(560px, calc(100vw - 32px));
+  padding: 38px;
+  border-color: rgba(255, 49, 82, .28);
+  box-shadow: 0 35px 120px rgba(0,0,0,.7), 0 0 90px rgba(255,49,82,.12);
+}
+.loyalty-icon {
+  width: 62px;
+  height: 62px;
+  margin: 0 auto 18px;
+  display: grid;
+  place-items: center;
+  border-radius: 20px;
+  color: #ffd76a;
+  background: linear-gradient(145deg, rgba(255,215,106,.18), rgba(255,49,82,.08));
+  border: 1px solid rgba(255,215,106,.22);
+  box-shadow: 0 14px 40px rgba(255,49,82,.1);
+  font-size: 1.7rem;
+}
+.loyalty-modal h2 { margin-bottom: 12px; }
+.loyalty-modal > p { color: #9aa6b9; line-height: 1.7; }
+.loyalty-price {
+  display: grid;
+  gap: 4px;
+  margin: 22px 0;
+  padding: 17px;
+  border: 1px solid rgba(72,223,154,.18);
+  border-radius: 16px;
+  background: rgba(72,223,154,.045);
+}
+.loyalty-price span { color: #7e899b; text-decoration: line-through; font-size: .85rem; }
+.loyalty-price strong { color: #8ce8bd; font-size: 1.8rem; }
+.loyalty-note { font-size: .78rem; }
+.loyalty-modal .confirmation-actions .btn,
+.loyalty-modal .confirmation-actions a { text-decoration: none; text-align: center; }
+@media (max-width: 520px) {
+  .loyalty-modal { padding: 28px 20px; }
+  .loyalty-modal .confirmation-actions { grid-template-columns: 1fr; }
+}

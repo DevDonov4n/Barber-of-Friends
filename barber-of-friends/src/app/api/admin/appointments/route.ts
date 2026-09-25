@@ -18,13 +18,39 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: "Dados do atendimento inválidos." }, { status: 400 });
     }
 
-    const appointment = await prisma.appointment.findUnique({ where: { id }, select: { id: true, clientId: true, status: true } });
+    const appointment = await prisma.appointment.findUnique({ where: { id }, select: { id: true, clientId: true, status: true, discountPercent: true } });
     if (!appointment) return NextResponse.json({ error: "Atendimento não encontrado." }, { status: 404 });
 
     const updated = await prisma.appointment.update({ where: { id }, data: { status: status as "CONFIRMED" | "COMPLETED" | "CANCELLED" | "NO_SHOW" } });
 
     if (status === "COMPLETED" && appointment.status !== "COMPLETED" && appointment.clientId) {
       await prisma.user.update({ where: { id: appointment.clientId }, data: { totalCompletedCuts: { increment: 1 } } });
+
+      const completedCount = await prisma.appointment.count({
+        where: { clientId: appointment.clientId, status: "COMPLETED" },
+      });
+      const activeOffer = await prisma.loyaltyHistory.findFirst({
+        where: { clientId: appointment.clientId, discountGenerated: false },
+        select: { id: true },
+      });
+
+      if (completedCount >= 5 && !activeOffer) {
+        await prisma.loyaltyHistory.create({
+          data: {
+            clientId: appointment.clientId,
+            appointmentId: appointment.id,
+            cutsCount: completedCount,
+            discountGenerated: false,
+          },
+        });
+      }
+
+      if (Number(appointment.discountPercent) === 50) {
+        await prisma.loyaltyHistory.updateMany({
+          where: { clientId: appointment.clientId, discountGenerated: false },
+          data: { discountGenerated: true },
+        });
+      }
     }
 
     return NextResponse.json({ success: true, status: updated.status });

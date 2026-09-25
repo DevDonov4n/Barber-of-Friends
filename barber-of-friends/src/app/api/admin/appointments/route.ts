@@ -26,29 +26,40 @@ export async function PATCH(request: Request) {
     if (status === "COMPLETED" && appointment.status !== "COMPLETED" && appointment.clientId) {
       await prisma.user.update({ where: { id: appointment.clientId }, data: { totalCompletedCuts: { increment: 1 } } });
 
-      const completedCount = await prisma.appointment.count({
-        where: { clientId: appointment.clientId, status: "COMPLETED" },
-      });
       const activeOffer = await prisma.loyaltyHistory.findFirst({
         where: { clientId: appointment.clientId, discountGenerated: false },
         select: { id: true },
       });
 
-      if (completedCount >= 5 && !activeOffer) {
-        await prisma.loyaltyHistory.create({
-          data: {
-            clientId: appointment.clientId,
-            appointmentId: appointment.id,
-            cutsCount: completedCount,
-            discountGenerated: false,
-          },
-        });
-      }
-
       if (Number(appointment.discountPercent) === 50) {
         await prisma.loyaltyHistory.updateMany({
           where: { clientId: appointment.clientId, discountGenerated: false },
           data: { discountGenerated: true },
+        });
+      }
+
+      const lastConsumedOffer = await prisma.loyaltyHistory.findFirst({
+        where: { clientId: appointment.clientId, discountGenerated: true },
+        orderBy: { createdAt: "desc" },
+        select: { appointmentId: true },
+      });
+
+      const completedSinceLastReward = await prisma.appointment.count({
+        where: {
+          clientId: appointment.clientId,
+          status: "COMPLETED",
+          ...(lastConsumedOffer ? { id: { gt: lastConsumedOffer.appointmentId } } : {}),
+        },
+      });
+
+      if (!activeOffer && Number(appointment.discountPercent) !== 50 && completedSinceLastReward >= 5) {
+        await prisma.loyaltyHistory.create({
+          data: {
+            clientId: appointment.clientId,
+            appointmentId: appointment.id,
+            cutsCount: completedSinceLastReward,
+            discountGenerated: false,
+          },
         });
       }
     }

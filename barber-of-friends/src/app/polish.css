@@ -823,3 +823,14 @@ body {
   .location-info .btn { width: 100%; }
   .location-badge { font-size: .65rem; }
 }
+
+
+/* Horários que já passaram no dia atual */
+.legend-past { color: #6f7888; margin-left: 12px; }
+.time-slot.past {
+  opacity: .34;
+  cursor: not-allowed;
+  border-color: rgba(255,255,255,.055);
+  background: rgba(255,255,255,.012);
+}
+.time-slot.past small { color: #727b8b; }

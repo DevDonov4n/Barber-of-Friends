@@ -41,7 +41,7 @@ export async function POST(request: Request) {
     if (end.getHours() * 60 + end.getMinutes() > 1230) return NextResponse.json({ error: "Esse serviço termina após o horário de funcionamento." }, { status: 400 });
     const activeLoyalty = session && service === "Corte premium"
       ? await prisma.loyaltyHistory.findFirst({
-          where: { clientId: session.id, discountGenerated: false },
+          where: { clientId: session.id, discountGenerated: false, appointment: { status: "COMPLETED" } },
           orderBy: { createdAt: "asc" },
         })
       : null;

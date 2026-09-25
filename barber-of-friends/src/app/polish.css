@@ -876,3 +876,23 @@ body {
   .loyalty-modal { padding: 28px 20px; }
   .loyalty-modal .confirmation-actions { grid-template-columns: 1fr; }
 }
+
+.loyalty-discount-badge {
+  display: inline-flex;
+  width: fit-content;
+  margin-top: 8px;
+  padding: 5px 8px;
+  border: 1px solid rgba(72,223,154,.2);
+  border-radius: 999px;
+  color: #8ce8bd;
+  background: rgba(72,223,154,.06);
+  font-size: .62rem;
+  font-weight: 900;
+  letter-spacing: .08em;
+}
+.service-card del {
+  display: block;
+  margin-top: 3px;
+  color: #687285;
+  font-size: .78rem;
+}

@@ -758,12 +758,12 @@ input {
   width: 100%;
 }
 .location-section {
-  display: grid;
-  grid-template-columns: 0.8fr 1.2fr;
-  gap: 30px;
-  align-items: center;
-  padding-top: 35px;
-  padding-bottom: 100px;
+    display: grid;
+    grid-template-columns: 0.8fr 1.2fr;
+    align-items: center;
+    padding-top: 35px;
+    padding-bottom: 100px;
+        
 }
 .location-copy {
   padding-right: 20px;

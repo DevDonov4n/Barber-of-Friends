@@ -139,3 +139,29 @@ body { font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif; }
   .calendar-row { margin-inline: -3px; }
   .appointment .appointment-actions { grid-template-columns: 1fr; }
 }
+
+
+/* Modal de confirmação: os botões devem respeitar a largura do modal. */
+.confirmation-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  width: 100%;
+  margin-top: 24px;
+}
+
+.confirmation-actions .btn {
+  width: 100%;
+  min-width: 0;
+}
+
+@media (max-width: 520px) {
+  .confirmation-modal {
+    width: min(100%, 460px);
+    padding: 28px 20px;
+  }
+
+  .confirmation-actions {
+    grid-template-columns: 1fr;
+  }
+}

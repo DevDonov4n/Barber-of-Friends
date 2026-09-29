@@ -85,7 +85,38 @@ body {
   display: grid;
   grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
   gap: 18px;
-  align-items: start;
+  align-items: stretch;
+}
+.client-grid .panel {
+  min-height: 650px;
+  height: 650px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+.client-grid .panel > .appointment-list {
+  min-height: 0;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(110, 142, 255, .55) rgba(255,255,255,.045);
+}
+.client-grid .panel > .appointment-list::-webkit-scrollbar {
+  width: 7px;
+}
+.client-grid .panel > .appointment-list::-webkit-scrollbar-track {
+  border-radius: 999px;
+  background: rgba(255,255,255,.035);
+}
+.client-grid .panel > .appointment-list::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(110,142,255,.72), rgba(255,49,82,.72));
+  border: 1px solid rgba(255,255,255,.08);
+}
+.client-grid .panel > .appointment-list::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(130,160,255,.9), rgba(255,72,98,.9));
 }
 .client-grid .panel,
 .dashboard > .panel {
@@ -580,6 +611,13 @@ body {
 @media (max-width: 960px) {
   .client-grid {
     grid-template-columns: 1fr;
+  }
+  .client-grid .panel {
+    height: auto;
+    min-height: 0;
+  }
+  .client-grid .panel > .appointment-list {
+    max-height: 560px;
   }
   .profile-form {
     grid-template-columns: repeat(2, minmax(0, 1fr));

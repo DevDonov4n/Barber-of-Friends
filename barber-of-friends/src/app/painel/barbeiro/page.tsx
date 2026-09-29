@@ -35,6 +35,27 @@ const money = (value: number) =>
 
 const dateLabel = (value: string) => value.split("-").reverse().join("/");
 
+function whatsappUrl(phone: string | null, clientName: string) {
+  if (!phone) return null;
+
+  const digits = phone.replace(/\\D/g, "");
+  if (!digits) return null;
+
+  const brazilianNumber = digits.startsWith("55")
+    ? digits
+    : digits.length === 10 || digits.length === 11
+      ? "55" + digits
+      : null;
+
+  if (!brazilianNumber) return null;
+
+  const message = encodeURIComponent(
+    `Olá, ${clientName}! Aqui é da Barber of Friends. Estou entrando em contato sobre o seu agendamento.`
+  );
+
+  return `https://wa.me/${brazilianNumber}?text=${message}`;
+}
+
 function AppointmentCard({ appointment }: { appointment: AppointmentRow }) {
   const name = appointment.client_name || appointment.guest_name || "Cliente";
   const contact =
@@ -43,6 +64,12 @@ function AppointmentCard({ appointment }: { appointment: AppointmentRow }) {
     appointment.guest_phone ||
     appointment.guest_email ||
     "Contato não informado";
+
+  const phone =
+    appointment.client_phone ||
+    appointment.guest_phone ||
+    null;
+  const whatsapp = whatsappUrl(phone, name);
 
   const statusLabel =
     appointment.status === "COMPLETED"
@@ -56,6 +83,18 @@ function AppointmentCard({ appointment }: { appointment: AppointmentRow }) {
       <div>
         <strong>{name}</strong>
         <span>{appointment.service_name} • {contact}</span>
+        {whatsapp && (
+          <a
+            className="whatsapp-contact"
+            href={whatsapp}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`Abrir conversa com ${name} no WhatsApp`}
+          >
+            <span className="whatsapp-icon" aria-hidden="true">↗</span>
+            WhatsApp
+          </a>
+        )}
         {appointment.favorite_cut && (
           <small>
             Favorito: <strong>{appointment.favorite_cut}</strong>

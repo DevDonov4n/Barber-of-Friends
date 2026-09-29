@@ -934,3 +934,188 @@ body {
   color: #687285;
   font-size: .78rem;
 }
+
+
+/* Dashboard do barbeiro: agenda diária e financeiro */
+.barber-today,
+.finance-panel {
+  margin-top: 22px;
+}
+.barber-today .panel-heading,
+.finance-panel .panel-heading {
+  margin-bottom: 20px;
+}
+.panel-description {
+  margin: -10px 0 0;
+  color: #7f8ca1;
+  font-size: .84rem;
+}
+.today-count-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 9px 13px;
+  border: 1px solid rgba(98,216,255,.16);
+  border-radius: 999px;
+  background: rgba(98,216,255,.045);
+  color: #a9dfff;
+  font-size: .72rem;
+  font-weight: 800;
+}
+.today-appointment-list {
+  max-height: 620px;
+  overflow-y: auto;
+  padding-right: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(110,142,255,.55) rgba(255,255,255,.045);
+}
+.today-appointment-list::-webkit-scrollbar {
+  width: 7px;
+}
+.today-appointment-list::-webkit-scrollbar-track {
+  border-radius: 999px;
+  background: rgba(255,255,255,.035);
+}
+.today-appointment-list::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(110,142,255,.72), rgba(255,49,82,.72));
+}
+.appointment-status-column {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 8px;
+}
+.appointment-status {
+  display: inline-flex;
+  width: fit-content;
+  padding: 5px 8px;
+  border-radius: 999px;
+  font-size: .62rem;
+  font-weight: 900;
+  letter-spacing: .08em;
+}
+.status-confirmed {
+  color: #a9dfff;
+  background: rgba(98,216,255,.07);
+  border: 1px solid rgba(98,216,255,.15);
+}
+.status-completed {
+  color: #8ce8bd;
+  background: rgba(72,223,154,.07);
+  border: 1px solid rgba(72,223,154,.16);
+}
+.status-no_show {
+  color: #ffb1bc;
+  background: rgba(255,91,115,.07);
+  border: 1px solid rgba(255,91,115,.16);
+}
+.finance-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0,1fr));
+  gap: 13px;
+}
+.finance-card {
+  position: relative;
+  overflow: hidden;
+  min-height: 145px;
+  padding: 21px;
+  border: 1px solid var(--line-soft);
+  border-radius: 18px;
+  background: linear-gradient(145deg, rgba(255,255,255,.045), rgba(255,255,255,.018));
+}
+.finance-card::after {
+  content: "";
+  position: absolute;
+  width: 90px;
+  height: 90px;
+  right: -35px;
+  bottom: -45px;
+  border-radius: 50%;
+  background: rgba(59,130,255,.13);
+  filter: blur(20px);
+}
+.finance-card > span,
+.finance-summary span {
+  display: block;
+  color: #7f8ca1;
+  font-size: .68rem;
+  font-weight: 900;
+  letter-spacing: .13em;
+}
+.finance-card strong {
+  display: block;
+  margin-top: 18px;
+  color: #f4f7fc;
+  font-size: clamp(1.35rem, 2.2vw, 2rem);
+  letter-spacing: -.04em;
+}
+.finance-card small {
+  display: block;
+  margin-top: 7px;
+  color: #8793a7;
+}
+.finance-card-highlight {
+  border-color: rgba(255,49,82,.18);
+  background: linear-gradient(145deg, rgba(255,49,82,.09), rgba(59,130,255,.045));
+}
+.finance-card-highlight strong {
+  color: #ff91a0;
+}
+.finance-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 13px;
+  margin-top: 13px;
+}
+.finance-summary > div {
+  padding: 18px 20px;
+  border: 1px solid var(--line-soft);
+  border-radius: 16px;
+  background: rgba(255,255,255,.025);
+}
+.finance-summary strong {
+  display: block;
+  margin-top: 7px;
+  color: #dfe7f5;
+  font-size: 1.25rem;
+}
+.finance-summary small {
+  display: block;
+  margin-top: 5px;
+  color: #778398;
+}
+.empty-state {
+  display: grid;
+  gap: 7px;
+  padding: 35px 20px;
+  text-align: center;
+  border: 1px dashed rgba(255,255,255,.1);
+  border-radius: 17px;
+  color: #8793a7;
+}
+.empty-state strong {
+  color: #dfe6f2;
+}
+@media (max-width: 1000px) {
+  .finance-grid {
+    grid-template-columns: repeat(2, minmax(0,1fr));
+  }
+}
+@media (max-width: 760px) {
+  .today-appointment-list {
+    max-height: none;
+    overflow: visible;
+    padding-right: 0;
+  }
+  .appointment-status-column {
+    align-items: stretch;
+  }
+  .finance-grid,
+  .finance-summary {
+    grid-template-columns: 1fr;
+  }
+  .today-count-badge {
+    display: none;
+  }
+}

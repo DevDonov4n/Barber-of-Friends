@@ -71,13 +71,6 @@ function AppointmentCard({ appointment }: { appointment: AppointmentRow }) {
     null;
   const whatsapp = whatsappUrl(phone, name);
 
-  const statusLabel =
-    appointment.status === "COMPLETED"
-      ? "CONCLUÍDO"
-      : appointment.status === "NO_SHOW"
-        ? "NÃO COMPARECEU"
-        : "CONFIRMADO";
-
   return (
     <div className="appointment">
       <div>
@@ -113,9 +106,6 @@ function AppointmentCard({ appointment }: { appointment: AppointmentRow }) {
       <b className="appointment-price">{money(appointment.final_price)}</b>
 
       <div className="appointment-status-column">
-        <span className={"appointment-status status-" + appointment.status.toLowerCase()}>
-          {statusLabel}
-        </span>
         <AppointmentActions id={appointment.id} status={appointment.status} />
       </div>
     </div>

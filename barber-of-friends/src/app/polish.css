@@ -1119,3 +1119,40 @@ body {
     display: none;
   }
 }
+
+
+/* Contato rápido pelo WhatsApp */
+.whatsapp-contact {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  width: fit-content;
+  margin-top: 10px;
+  padding: 7px 10px;
+  border: 1px solid rgba(72, 223, 154, 0.2);
+  border-radius: 9px;
+  color: #8ce8bd !important;
+  background: rgba(72, 223, 154, 0.055);
+  font-size: 0.7rem !important;
+  font-weight: 850;
+  text-decoration: none;
+  transition: transform .18s, border-color .18s, background .18s, box-shadow .18s;
+}
+.whatsapp-contact:hover {
+  transform: translateY(-1px);
+  border-color: rgba(72, 223, 154, 0.48);
+  background: rgba(72, 223, 154, 0.11);
+  box-shadow: 0 8px 22px rgba(72, 223, 154, 0.08);
+}
+.whatsapp-icon {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  margin: 0 !important;
+  border-radius: 50%;
+  color: #07140d !important;
+  background: #8ce8bd;
+  font-size: .72rem !important;
+  font-weight: 900;
+}

@@ -6,8 +6,8 @@ import { createSession } from "@/lib/auth";
 export async function POST(request: Request) {
   try {
     const { name, email, password, phone, favoriteCut } = await request.json();
-    if (!name?.trim() || !email?.trim() || !password || password.length < 6) {
-      return NextResponse.json({ error: "Nome, e-mail e senha (mínimo 6 caracteres) são obrigatórios." }, { status: 400 });
+    if (!name?.trim() || !email?.trim() || !phone?.trim() || !password || password.length < 6) {
+      return NextResponse.json({ error: "Nome, e-mail, WhatsApp e senha (mínimo 6 caracteres) são obrigatórios." }, { status: 400 });
     }
 
     const normalizedEmail = email.trim().toLowerCase();
@@ -20,7 +20,7 @@ export async function POST(request: Request) {
         name: name.trim(),
         email: normalizedEmail,
         passwordHash,
-        phone: phone?.trim() || null,
+        phone: phone.trim(),
         favoriteCut: favoriteCut?.trim() || null,
       },
     });

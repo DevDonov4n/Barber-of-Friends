@@ -177,7 +177,7 @@ export default function AgendarPage() {
         <a className="back-link" href="/">
           ← Voltar
         </a>
-
+        <br/>
         <span className="eyebrow">BARBER OF FRIENDS • AGENDAMENTO</span>
         <h1 className="page-title">Escolha seu horário.</h1>
         <p className="page-subtitle">

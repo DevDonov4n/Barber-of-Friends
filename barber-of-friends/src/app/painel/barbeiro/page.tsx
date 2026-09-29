@@ -88,7 +88,7 @@ export default async function BarberDashboardPage() {
 
   const [todayAppointments, upcomingAppointments, financeRows] =
     await Promise.all([
-      prisma.$queryRaw<AppointmentRow[]>\`
+      prisma.$queryRaw<AppointmentRow[]>`
         SELECT
           a.id,
           DATE_FORMAT(a.appointment_date,'%Y-%m-%d') AS appointment_date,
@@ -109,8 +109,8 @@ export default async function BarberDashboardPage() {
         WHERE a.appointment_date = CURDATE()
           AND a.status IN ('CONFIRMED', 'COMPLETED')
         ORDER BY a.start_time ASC
-      \`,
-      prisma.$queryRaw<AppointmentRow[]>\`
+      `,
+      prisma.$queryRaw<AppointmentRow[]>`
         SELECT
           a.id,
           DATE_FORMAT(a.appointment_date,'%Y-%m-%d') AS appointment_date,
@@ -132,8 +132,8 @@ export default async function BarberDashboardPage() {
           AND a.status IN ('CONFIRMED', 'COMPLETED')
         ORDER BY a.appointment_date ASC, a.start_time ASC
         LIMIT 50
-      \`,
-      prisma.$queryRaw<FinanceRow[]>\`
+      `,
+      prisma.$queryRaw<FinanceRow[]>`
         SELECT
           SUM(CASE WHEN appointment_date = CURDATE() AND status = 'COMPLETED' THEN 1 ELSE 0 END) AS today_count,
           COALESCE(SUM(CASE WHEN appointment_date = CURDATE() AND status = 'COMPLETED' THEN final_price ELSE 0 END), 0) AS today_revenue,
@@ -147,7 +147,7 @@ export default async function BarberDashboardPage() {
           SUM(CASE WHEN YEAR(appointment_date) = YEAR(CURDATE()) AND status = 'COMPLETED' THEN 1 ELSE 0 END) AS year_count,
           COALESCE(SUM(CASE WHEN YEAR(appointment_date) = YEAR(CURDATE()) AND status = 'COMPLETED' THEN final_price ELSE 0 END), 0) AS year_revenue
         FROM appointments
-      \`,
+      `,
     ]);
 
   const financeBase = financeRows[0] || {

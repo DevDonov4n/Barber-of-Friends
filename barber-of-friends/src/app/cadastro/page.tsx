@@ -7,6 +7,7 @@ export default function CadastroPage() {
   const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [favoriteCut, setFavoriteCut] = useState("");
   const [error, setError] = useState("");
@@ -21,7 +22,7 @@ export default function CadastroPage() {
       const r = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password, favoriteCut }),
+        body: JSON.stringify({ name, email, phone, password, favoriteCut }),
       });
 
       const data = await r.json();
@@ -57,6 +58,20 @@ export default function CadastroPage() {
             <label>
               E-mail
               <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="voce@email.com" autoComplete="email" required />
+            </label>
+
+            <label>
+              WhatsApp
+              <input
+                type="tel"
+                value={phone}
+                onChange={e => setPhone(e.target.value)}
+                placeholder="(11) 99999-9999"
+                autoComplete="tel"
+                inputMode="tel"
+                required
+              />
+              <small>Seu WhatsApp é obrigatório para confirmar o cadastro.</small>
             </label>
 
             <label>

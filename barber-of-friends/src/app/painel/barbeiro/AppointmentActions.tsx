@@ -24,7 +24,6 @@ export default function AppointmentActions({ id, status }: Props) {
   }
 
   return <div className="appointment-actions">
-    <span className={`status-badge status-${currentStatus.toLowerCase()}`}>{currentStatus === "COMPLETED" ? "✓ COMPLETO" : currentStatus === "CANCELLED" ? "CANCELADO" : currentStatus}</span>
     {currentStatus === "CONFIRMED" && <>
       <button className="action-complete" disabled={loading} onClick={() => updateStatus("COMPLETED")}>✓ Concluir</button>
       <button className="action-cancel" disabled={loading} onClick={() => setCancelOpen(true)}>Cancelar</button>
